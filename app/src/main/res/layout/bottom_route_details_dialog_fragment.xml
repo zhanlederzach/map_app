@@ -69,7 +69,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:gravity="center_vertical"
-            android:textColor="@color/greyDark"
+            android:textColor="@color/green"
             android:textSize="12sp"
             tools:text="The shortest path"
             android:text="@string/the_shortest_path"

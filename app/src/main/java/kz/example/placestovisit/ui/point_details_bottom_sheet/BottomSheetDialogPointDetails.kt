@@ -10,6 +10,8 @@ import androidx.core.os.bundleOf
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.tabs.TabLayout
+import com.main.ui_core.extensions.setHtmlText
 import kotlinx.android.synthetic.main.bottom_point_details_dialog_fragment.*
 import kz.example.placestovisit.R
 import kz.example.placestovisit.model.GeoLocationDetailsModel
@@ -92,19 +94,53 @@ class BottomSheetDialogDetails : BottomSheetDialogFragment() {
                 isExpanded = slideOffset == 1f
             }
 
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-
-            }
+            override fun onStateChanged(bottomSheet: View, newState: Int) { }
         })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setViewPagerAdapter()
+
+        titleTextView.text = geoSearchModel?.title
         tvDetails.text = geoSearchModel?.title
 
         btnSetRout.setOnClickListener {
             drawRouteListener?.invoke()
         }
 
+        if (routes?.routes.isNullOrEmpty()) dismiss()
+        val route = routes?.routes?.first()
+
+        if (route?.legs.isNullOrEmpty()) dismiss()
+        val legInfo = route?.legs?.first()
+        val destinationRoute = "${legInfo?.startAddress} -> \n ${legInfo?.endAddress}"
+        tvDetailsDescription.setHtmlText(destinationRoute)
+        tvDistance.text = legInfo?.distance?.text
+        tvDuration.text = legInfo?.duration?.text
+    }
+
+    private fun setViewPagerAdapter() {
+        val titles = listOf(getString(R.string.destination_info).toUpperCase(), getString(R.string.contacts).toUpperCase())
+        val adapter = PlacesInfoAdapter(geoLocationDetailsModel, routes, geoSearchModel, titles)
+        viewPager.adapter = adapter
+        viewPager.offscreenPageLimit = 2
+        tabLayout.setupWithViewPager(viewPager)
+        reduceMarginsInTabs(tabLayout, 64)
+    }
+
+    private fun reduceMarginsInTabs(tabLayout: TabLayout, marginOffset: Int) {
+        val tabStrip = tabLayout.getChildAt(0)
+        if (tabStrip is ViewGroup) {
+            for (i in 0 until tabStrip.childCount) {
+                val tabView = tabStrip.getChildAt(i)
+                if (tabView.layoutParams is ViewGroup.MarginLayoutParams) {
+                    (tabView.layoutParams as ViewGroup.MarginLayoutParams).leftMargin = marginOffset
+                    (tabView.layoutParams as ViewGroup.MarginLayoutParams).rightMargin = marginOffset
+                }
+            }
+            tabLayout.requestLayout()
+        }
     }
 }

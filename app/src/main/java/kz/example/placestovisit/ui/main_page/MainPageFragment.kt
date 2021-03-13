@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -32,6 +33,7 @@ import kz.example.placestovisit.model.Routes
 import kz.example.placestovisit.ui.point_details_bottom_sheet.BottomSheetDialogDetails
 import kz.example.placestovisit.utils.MapUtils
 import kz.example.placestovisit.widgets.ToolbarView
+import org.w3c.dom.Text
 import javax.inject.Inject
 
 class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener {
@@ -57,6 +59,9 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener, Google
     private lateinit var mapView: MapView
     private lateinit var toolbarView: ToolbarView
     private lateinit var bottomSheetRoute: LinearLayout
+    private var tvTextViewBottom: TextView? = null
+    private var tvStepsBottom: TextView? = null
+
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
     private lateinit var googleMap: GoogleMap
 
@@ -175,6 +180,9 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener, Google
         bottomSheetRoute = findViewById(R.id.bottomSheetRoute)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetRoute)
 
+        tvTextViewBottom = bottomSheetRoute.findViewById(R.id.titleTextView)
+        tvStepsBottom = bottomSheetRoute.findViewById(R.id.tvSteps)
+
         bottomSheetBehavior.apply {
             peekHeight = 0
             BottomSheetBehavior.STATE_COLLAPSED
@@ -223,6 +231,8 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener, Google
             isMyLocationEnabled = true
             uiSettings.isZoomControlsEnabled = true
         }
+        googleMap.clear()
+        googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireActivity(), R.raw.map_style))
         googleMap.setOnMarkerClickListener(this)
         googleMap.setOnMapClickListener(this)
     }
@@ -299,6 +309,10 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener, Google
                         bottomSheetDetailsDialog.dismiss()
 
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                        tvTextViewBottom?.text = result.geoSearchModel.title
+                        if (!result.points.routes.isNullOrEmpty() && !result.points.routes.first().legs?.isNullOrEmpty()!!) {
+                            tvStepsBottom?.text = result.points.routes.first().legs?.first()?.duration?.text
+                        }
                         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                                 if (slideOffset == 0f) removePreviousPath()

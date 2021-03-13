@@ -44,11 +44,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="4dp"
+            android:layout_marginBottom="12dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:gravity="center_vertical"
-            android:textColor="@color/greyDark"
+            android:textColor="@color/darkIndigo"
             android:textSize="14sp"
             android:drawableRight="@drawable/circle_green"
             android:drawablePadding="8dp"
@@ -61,7 +61,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:gravity="top"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp">
 
@@ -70,7 +70,6 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-
                 android:gravity="center_vertical"
                 android:textColor="@color/greyDark"
                 android:textSize="14sp"
@@ -81,11 +80,20 @@
                 />
 
             <TextView
+                android:id="@+id/tvDistance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="90 m">
+                tools:text="90 m"
+                android:textColor="@color/darkIndigo"
+                android:layout_marginStart="@dimen/margin_12dp"
+                android:layout_marginEnd="@dimen/margin_12dp"
+                android:fontFamily="@font/roboto_medium"/>
 
-            </TextView>
+            <TextView
+                android:id="@+id/tvDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="90 min"/>
 
         </LinearLayout>
 
@@ -133,8 +141,8 @@
         android:background="@color/grey_main"
         app:tabGravity="fill"
         app:tabIndicatorHeight="3dp"
-        app:tabIndicatorColor="@color/singleTotalPayment"
-        app:tabSelectedTextColor="@color/green"
+        app:tabIndicatorColor="@color/active"
+        app:tabSelectedTextColor="@color/grey"
         app:tabTextColor="@color/greyUnselectedDot" />
 
     <androidx.viewpager.widget.ViewPager

@@ -1,6 +1,8 @@
 package com.main.ui_core.extensions
 
 import android.content.Context
+import android.os.Build
+import android.text.Html
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.View
@@ -44,4 +46,12 @@ fun View.showKeyboard() {
 fun View.hideKeyboard() {
     val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+}
+
+fun TextView.setHtmlText(htmlInstruction: String) {
+    text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        Html.fromHtml(htmlInstruction, Html.FROM_HTML_MODE_COMPACT).toString()
+    } else {
+        Html.fromHtml(htmlInstruction).toString()
+    }
 }

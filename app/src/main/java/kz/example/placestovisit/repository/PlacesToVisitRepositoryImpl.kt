@@ -1,13 +1,14 @@
 package kz.example.placestovisit.repository
 
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import io.reactivex.Single
 import kz.example.placestovisit.api.PlacesToVisitApi
 import kz.example.placestovisit.model.GeoLocationDetailsModel
 import kz.example.placestovisit.model.GeoSearchModel
 import kz.example.placestovisit.model.Routes
+import kz.example.placestovisit.repository.exceptions.mapBodyMessages
+import kz.example.placestovisit.repository.exceptions.mapNetworkErrors
 import javax.inject.Inject
 
 class PlacesToVisitRepositoryImpl @Inject constructor(
@@ -16,37 +17,32 @@ class PlacesToVisitRepositoryImpl @Inject constructor(
 ) : PlacesToVisitRepository {
 
     override fun getPointsOfInteresets(latitude: Double, longitude: Double): Single<List<GeoSearchModel>> {
-        return placesToVisitApi.getPointsOfInteresets("${latitude}|${longitude}").flatMap { response ->
-            if (response.isSuccessful) {
-                val json = response.body()?.get("query")?.asJsonObject?.get("geosearch")
+        return placesToVisitApi.getPointsOfInteresets("${latitude}|${longitude}")
+            .mapBodyMessages(gson)
+            .mapNetworkErrors(gson)
+            .map { response ->
+                val json = response.get("query")?.asJsonObject?.get("geosearch")
                 val type = object : TypeToken<List<GeoSearchModel>>() {}.type
-                val list: List<GeoSearchModel> = gson.fromJson(json, type)
-                Single.just(list)
-            } else {
-                Single.error(Throwable("Not Found"))
+                gson.fromJson(json, type) as List<GeoSearchModel>
             }
-        }
     }
 
     override fun getPointsOfInteresetsDetails(pageId: Int): Single<GeoLocationDetailsModel> {
-        return placesToVisitApi.getPointsOfInteresetsDetails(pageId).flatMap { response ->
-            if (response.isSuccessful) {
-                Single.just(response.body())
-            } else {
-                Single.error(Throwable("Not Found"))
+        return placesToVisitApi.getPointsOfInteresetsDetails(pageId)
+            .mapBodyMessages(gson)
+            .mapNetworkErrors(gson)
+            .map { response ->
+                response
             }
-        }
     }
 
     override fun getDirections(url: String): Single<Routes> {
-        return placesToVisitApi.getDirections(url).flatMap { response ->
-            if (response.isSuccessful) {
-                val routes: Routes = gson.fromJson(response.body(), Routes::class.java)
-                Single.just(routes)
-            } else {
-                Single.error(Throwable("Not Found"))
+        return placesToVisitApi.getDirections(url)
+            .mapBodyMessages(gson)
+            .mapNetworkErrors(gson)
+            .map { response ->
+                gson.fromJson(response, Routes::class.java)
             }
-        }
     }
 
 }

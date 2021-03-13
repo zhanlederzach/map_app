@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">PlacesToVisit</string>
     <string name="get_there">Get there!</string>
-    <string name="desctination_info">Destination info</string>
+    <string name="destination_info">Destination info</string>
     <string name="contacts">Contacts</string>
     <string name="the_shortest_path">The shortest path</string>
 </resources>

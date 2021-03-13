@@ -8,30 +8,58 @@ android {
     buildToolsVersion "30.0.0"
 
     defaultConfig {
+        def majorVersion = 1
+        def minorVersion = 0
+        def patchVersion = 0
+
         applicationId "kz.example.placestovisit"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        versionCode majorVersion * 10000 + minorVersion * 100 + patchVersion
+        versionName "${majorVersion}.${minorVersion}.${patchVersion}"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            try {
+                def propsFile = rootProject.file('keystore/signing.properties')
+                def props = new Properties()
+
+                if (propsFile.canRead()) {
+                    props.load(new FileInputStream(propsFile))
+                    storePassword props['KEYSTORE_PASSWORD']
+                    keyAlias props['KEY_ALIAS']
+                    keyPassword props['KEY_PASSWORD']
+                    storeFile file("${rootDir}${props['KEY_STORE']}")
+                }
+            }
+            catch (ex) {
+                throw new InvalidUserDataException("You should define KEYSTORE_PASSWORD and KEY_PASSWORD in gradle.properties.")
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
+            debuggable false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "BASE_URL", '"https://en.wikipedia.org/w/"'
         }
 
         release_beta {
             minifyEnabled false
+            debuggable true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "BASE_URL", '"https://en.wikipedia.org/w/"'
         }
 
         debug {
             minifyEnabled false
+            debuggable true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "BASE_URL", '"https://en.wikipedia.org/w/"'
         }

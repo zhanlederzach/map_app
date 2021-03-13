@@ -3,20 +3,18 @@ package kz.example.placestovisit.ui.main_page
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.gson.JsonObject
 import com.main.ui_core.base.BaseViewModel
 import com.main.ui_core.base.Loading
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
+import kz.example.placestovisit.model.GeoLocationDetailsModel
 import kz.example.placestovisit.model.GeoSearchModel
 import kz.example.placestovisit.model.Routes
 import kz.example.placestovisit.repository.PlacesToVisitRepository
 import kz.example.placestovisit.utils.MapUtils
 import javax.inject.Inject
-import kotlin.math.abs
 
 class MainPageViewModel @Inject constructor(
     private val placesToVisitRepository: PlacesToVisitRepository
@@ -55,17 +53,18 @@ class MainPageViewModel @Inject constructor(
         )
     }
 
-    fun getDirectionWithDesctination(
+    fun getDirectionWithDestination(
         origin: LatLng,
-        destination: LatLng,
+        destination: LatLng?,
         geoSearchModel: GeoSearchModel?
     ) {
+        if (destination == null) return
         addDisposable(
             Single.zip(
                 placesToVisitRepository.getDirections(getRequestedUrl(origin, destination)!!),
                 placesToVisitRepository.getPointsOfInteresetsDetails(geoSearchModel?.pageId!!.toInt()),
-                BiFunction <Routes, JsonObject, Pair<Routes, Routes>> { routes, routes2 ->
-                    Pair(routes, routes)
+                BiFunction <Routes, GeoLocationDetailsModel, Pair<Routes, GeoLocationDetailsModel>> { routes, geoDescription ->
+                    Pair(routes, geoDescription)
                 }
             )
                 .observeOn(AndroidSchedulers.mainThread())
@@ -74,7 +73,7 @@ class MainPageViewModel @Inject constructor(
                 .doFinally { loadingLiveData.postValue(Loading.Hide) }
                 .subscribe(
                     { result ->
-                        _directionsLiveData.value = DestinationPathWithDescription.Result(result.first, geoSearchModel)
+                        _directionsLiveData.value = DestinationPathWithDescription.Result(result.first, result.second, geoSearchModel)
                     },
                     { error ->
                         _directionsLiveData.value = DestinationPathWithDescription.Error(error.message)
@@ -106,7 +105,11 @@ class MainPageViewModel @Inject constructor(
     }
 
     sealed class DestinationPathWithDescription {
-        data class Result(val points: Routes, val geoSearchModel: GeoSearchModel?) : DestinationPathWithDescription()
+        data class Result(
+            val points: Routes,
+            val geoSearchDescription: GeoLocationDetailsModel,
+            val geoSearchModel: GeoSearchModel
+        ) : DestinationPathWithDescription()
         data class Error(val error: String?) : DestinationPathWithDescription()
     }
 }

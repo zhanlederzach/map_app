@@ -5,6 +5,7 @@ import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import io.reactivex.Single
 import kz.example.placestovisit.api.PlacesToVisitApi
+import kz.example.placestovisit.model.GeoLocationDetailsModel
 import kz.example.placestovisit.model.GeoSearchModel
 import kz.example.placestovisit.model.Routes
 import javax.inject.Inject
@@ -27,7 +28,7 @@ class PlacesToVisitRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getPointsOfInteresetsDetails(pageId: Int): Single<JsonObject> {
+    override fun getPointsOfInteresetsDetails(pageId: Int): Single<GeoLocationDetailsModel> {
         return placesToVisitApi.getPointsOfInteresetsDetails(pageId).flatMap { response ->
             if (response.isSuccessful) {
                 Single.just(response.body())
@@ -52,6 +53,6 @@ class PlacesToVisitRepositoryImpl @Inject constructor(
 
 interface PlacesToVisitRepository {
     fun getPointsOfInteresets(latitude: Double, longitude: Double): Single<List<GeoSearchModel>>
-    fun getPointsOfInteresetsDetails(pageId: Int): Single<JsonObject>
+    fun getPointsOfInteresetsDetails(pageId: Int): Single<GeoLocationDetailsModel>
     fun getDirections(url: String): Single<Routes>
 }

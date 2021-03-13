@@ -1,7 +1,6 @@
 package kz.example.placestovisit.ui.point_details_bottom_sheet
 
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,32 +12,45 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.bottom_point_details_dialog_fragment.*
 import kz.example.placestovisit.R
+import kz.example.placestovisit.model.GeoLocationDetailsModel
 import kz.example.placestovisit.model.GeoSearchModel
 import kz.example.placestovisit.model.Routes
 
 class BottomSheetDialogDetails : BottomSheetDialogFragment() {
 
-    var listener: (() -> Unit)? = null
+    var drawRouteListener: (() -> Unit)? = null
 
     companion object {
-        private const val GEO_SEARCH = "GEO_SEARCH"
+        private const val GEO_SEARCH_MODEL = "GEO_SEARCH_MODEL"
+        private const val GEO_SEARCH_DESCRIPTION = "GEO_SEARCH_DESCRIPTION"
         private const val ROUTES = "ROUTES"
 
+
         @JvmStatic
-        fun newInstance(geoSearchModel: GeoSearchModel?, routes: Routes): BottomSheetDialogDetails =
+        fun newInstance(
+            geoLocationDetailsModel: GeoLocationDetailsModel,
+            routes: Routes,
+            geoSearchModel: GeoSearchModel
+        ): BottomSheetDialogDetails =
             BottomSheetDialogDetails().apply {
-                arguments = bundleOf(ROUTES to routes, GEO_SEARCH to geoSearchModel)
+                arguments = bundleOf(
+                    ROUTES to routes,
+                    GEO_SEARCH_DESCRIPTION to geoLocationDetailsModel,
+                    GEO_SEARCH_MODEL to geoSearchModel
+                )
             }
     }
 
-    private var geoSearchModel: GeoSearchModel? = null
+    private var geoLocationDetailsModel: GeoLocationDetailsModel? = null
     private var routes: Routes? = null
-    private var geoSearchDetails: String? = ""
+    private var geoSearchModel: GeoSearchModel? = null
+    private var isExpanded: Boolean = false
 
     override fun setArguments(args: Bundle?) {
         super.setArguments(args)
         routes = args?.getSerializable(ROUTES) as? Routes
-        geoSearchModel = args?.getSerializable(GEO_SEARCH) as? GeoSearchModel
+        geoLocationDetailsModel = args?.getSerializable(GEO_SEARCH_DESCRIPTION) as? GeoLocationDetailsModel
+        geoSearchModel = args?.getSerializable(GEO_SEARCH_MODEL) as? GeoSearchModel
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,33 +74,26 @@ class BottomSheetDialogDetails : BottomSheetDialogFragment() {
     private fun setupBehavior(bottomSheetDialog: BottomSheetDialog) {
         val behavior = bottomSheetDialog.behavior
 
-        llMainRoot.viewTreeObserver
-            .addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-                override fun onGlobalLayout() {
-                    llMainRoot.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    val hidden = llMainRoot.getChildAt(1)
-                    behavior.peekHeight = hidden.top
-                }
-            })
+        if (!isExpanded) {
+            llMainRoot.viewTreeObserver
+                .addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        llMainRoot.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        val hidden = llMainRoot.getChildAt(1)
+                        behavior.peekHeight = hidden.top
+                    }
+                })
+        } else {
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
 
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            var oldOffSet = 0f
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                val inRangeExpanding = oldOffSet < slideOffset
-                oldOffSet = slideOffset
-                if (inRangeExpanding && geoSearchDetails == null) {
-                    // TODO: make query to details
-                    geoSearchDetails = ""
-                }
+                isExpanded = slideOffset == 1f
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState == BottomSheetBehavior.STATE_HIDDEN ||
-                    newState == BottomSheetBehavior.STATE_COLLAPSED ||
-                    newState == BottomSheetBehavior.STATE_HALF_EXPANDED
-                ) {
-                    dismiss()
-                }
+
             }
         })
     }
@@ -98,11 +103,8 @@ class BottomSheetDialogDetails : BottomSheetDialogFragment() {
         tvDetails.text = geoSearchModel?.title
 
         btnSetRout.setOnClickListener {
-            listener?.invoke()
+            drawRouteListener?.invoke()
         }
 
-        closeImageView.setOnClickListener {
-            dismiss()
-        }
     }
 }

@@ -10,9 +10,9 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -22,6 +22,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.maps.android.PolyUtil
 import com.main.ui_core.base.BaseFragment
 import com.main.ui_core.extensions.showToast
@@ -30,9 +31,10 @@ import kz.example.placestovisit.model.GeoSearchModel
 import kz.example.placestovisit.model.Routes
 import kz.example.placestovisit.ui.point_details_bottom_sheet.BottomSheetDialogDetails
 import kz.example.placestovisit.utils.MapUtils
+import kz.example.placestovisit.widgets.ToolbarView
 import javax.inject.Inject
 
-class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
+class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener {
 
     companion object {
         fun newInstance(data: Bundle? = null) = MainPageFragment()
@@ -53,18 +55,21 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
     }
 
     private lateinit var mapView: MapView
+    private lateinit var toolbarView: ToolbarView
+    private lateinit var bottomSheetRoute: LinearLayout
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
     private lateinit var googleMap: GoogleMap
 
     private var currLocationMarker: Marker? = null
-    private var origin: LatLng? = null
-    private var currentRoute: Routes? = null
+    private var origin: LatLng = LatLng(-123.4, 120.0)
+    private var currentRouteToDestination: Routes? = null
     private var polyline: Polyline? = null
+    private var destination: LatLng? = null
+    private var hashMapPoints: HashMap<String, GeoSearchModel> = hashMapOf()
 
     private val fusedLocationClient by lazy {
         LocationServices.getFusedLocationProviderClient(requireContext())
     }
-
-    private var isCurrentLocationLoaded = false
 
     private var locationCallback: LocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
@@ -72,27 +77,23 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
             if (locationList.isNotEmpty()) {
                 val location = locationList.last()
                 var distance = 20.0
-                if (origin != null) {
-                    distance = MapUtils.meterDistanceBetweenPoints(location.latitude, location.longitude, origin!!.latitude, origin!!.longitude)
-                }
+                distance = MapUtils.meterDistanceBetweenPoints(
+                    location.latitude,
+                    location.longitude,
+                    origin.latitude,
+                    origin.longitude
+                )
                 if (distance > DISTANCE_LIMIT_FOR_UPDATE) {
                     origin = LatLng(location.latitude, location.longitude)
-                    if (currLocationMarker != null) {
-                        currLocationMarker?.remove()
-                    }
-
-                    val latLng = LatLng(location.latitude, location.longitude)
-                    val markerOptions = MarkerOptions()
-                    markerOptions.apply {
-                        position(latLng)
-                        title("Current Position")
-                        icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA))
-                    }
-                    currLocationMarker = googleMap.addMarker(markerOptions)
-                    if (!isCurrentLocationLoaded) {
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17.0F))
-                    }
-                    isCurrentLocationLoaded = true
+                    currLocationMarker?.remove()
+                    currLocationMarker = googleMap.addMarker(
+                        MarkerOptions().apply {
+                            position(origin)
+                            title("Current Position")
+                            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA))
+                        }
+                    )
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(origin, 17.0F))
                     viewModel.loadClosePointOfInterests(location.latitude, location.longitude)
                 }
             }
@@ -104,8 +105,6 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
         fastestInterval = 5_000
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
     }
-
-    private var hashMapPoints: HashMap<String, GeoSearchModel> = hashMapOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -127,16 +126,6 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
         super.onResume()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        mapView.onDestroy()
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        mapView.onLowMemory()
-    }
-
     override fun onPause() {
         super.onPause()
         if (fusedLocationClient != null) {
@@ -150,10 +139,63 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
         super.onDestroyView()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        mapView.onDestroy()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapView.onLowMemory()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            REQUEST_LOCATION_PERMISSION -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) ==
+                    PackageManager.PERMISSION_GRANTED
+                ) {
+                    initGoogleMapProperties()
+                } else {
+                    showToast("Permission denied")
+                }
+                return
+            }
+        }
+    }
+
     private fun bindViews(view: View, savedInstanceState: Bundle?) = with(view) {
         mapView = findViewById(R.id.mapView)
-        mapView.onCreate(savedInstanceState)
-        mapView.onResume()
+        toolbarView = findViewById(R.id.toolbarView)
+        bottomSheetRoute = findViewById(R.id.bottomSheetRoute)
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetRoute)
+
+        bottomSheetBehavior.apply {
+            peekHeight = 0
+            BottomSheetBehavior.STATE_COLLAPSED
+            addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) { }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_HIDDEN ||
+                        newState == BottomSheetBehavior.STATE_COLLAPSED ||
+                        newState == BottomSheetBehavior.STATE_HALF_EXPANDED
+                    ) {
+                        toolbarView.visibility = View.GONE
+                    }
+                }
+            })
+        }
+
+        mapView.apply {
+            onCreate(savedInstanceState)
+            onResume()
+        }
     }
 
     private fun initGoogleMap() {
@@ -162,7 +204,8 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
             googleMap = map
             hideLoading()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) ==
+                    PackageManager.PERMISSION_GRANTED) {
                     initGoogleMapProperties()
                 } else {
                     checkLocationPermission()
@@ -176,9 +219,12 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
     @SuppressLint("MissingPermission")
     private fun initGoogleMapProperties() {
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
-        googleMap.isMyLocationEnabled = true
-        googleMap.uiSettings.isZoomControlsEnabled = true
+        googleMap.apply {
+            isMyLocationEnabled = true
+            uiSettings.isZoomControlsEnabled = true
+        }
         googleMap.setOnMarkerClickListener(this)
+        googleMap.setOnMapClickListener(this)
     }
 
     private fun checkLocationPermission() {
@@ -206,25 +252,6 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            REQUEST_LOCATION_PERMISSION -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                ) {
-                    initGoogleMapProperties()
-                } else {
-                    showToast("Permission denied")
-                }
-                return
-            }
-        }
-    }
-
     private fun setObservers() {
         viewModel.pointsLiveData.observe(viewLifecycleOwner, androidx.lifecycle.Observer { result ->
             when (result) {
@@ -232,15 +259,12 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
                     hashMapPoints = hashMapOf()
                     result.points.forEach {
                         hashMapPoints[it.pageId] = it
-                        val drawable = ContextCompat.getDrawable(requireActivity(), R.drawable.ic_point_black)
-                        val bitmap = drawable?.toBitmap()
-                        val icon = BitmapDescriptorFactory.fromBitmap(bitmap)
                         val mark = MarkerOptions()
                             .position(LatLng(it.lat, it.lon))
                             .title(it.title)
                             .snippet(it.pageId)
                             .draggable(false)
-                            .icon(icon)
+                            .icon(MapUtils.getIconByDrawableId(requireActivity(), R.drawable.ic_point_black))
                         googleMap.addMarker(mark)
                     }
                 }
@@ -252,15 +276,20 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
         viewModel.directionsLiveData.observe(viewLifecycleOwner, androidx.lifecycle.Observer { result ->
             when (result) {
                 is MainPageViewModel.DestinationPathWithDescription.Result -> {
-                    currentRoute = result.points
-
+                    currentRouteToDestination = result.points
                     val bottomSheetDetailsDialog =
-                        BottomSheetDialogDetails.newInstance(result.geoSearchModel, result.points)
-                    bottomSheetDetailsDialog.show(requireActivity().supportFragmentManager, BOTTOM_SHEET_POINT_DETAILS)
+                        BottomSheetDialogDetails.newInstance(
+                            result.geoSearchDescription,
+                            result.points,
+                            result.geoSearchModel
+                        )
 
-                    bottomSheetDetailsDialog.listener = {
-                        val decodedPath = PolyUtil.decode(currentRoute!!.routes[0].overviewPolyline.points)
-                        polyline = googleMap.addPolyline(PolylineOptions().addAll(decodedPath))
+                    bottomSheetDetailsDialog.drawRouteListener = {
+                        currentRouteToDestination.let {
+                            val decodedPath = PolyUtil.decode(it?.routes?.get(0)?.overviewPolyline?.points)
+                            polyline = googleMap.addPolyline(PolylineOptions().addAll(decodedPath))
+                        }
+
                         if (!result.points.routes.isNullOrEmpty()) {
                             googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(LatLngBounds(
                                 LatLng(result.points.routes[0].bounds?.southWest!!.lat, result.points.routes[0].bounds?.southWest!!.lng),
@@ -268,7 +297,28 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
                             ), 17))
                         }
                         bottomSheetDetailsDialog.dismiss()
+
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                                if (slideOffset == 0f) removePreviousPath()
+                            }
+
+                            override fun onStateChanged(bottomSheet: View, newState: Int) { }
+                        })
+
+                        toolbarView.visibility = View.VISIBLE
+
+                        toolbarView.getBackArrow().setOnClickListener {
+                            bottomSheetDetailsDialog.show(requireActivity().supportFragmentManager, BOTTOM_SHEET_POINT_DETAILS)
+                            MapUtils.moveCamera(googleMap, destination)
+                            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                            toolbarView.visibility = View.GONE
+                            removePreviousPath()
+                        }
                     }
+
+                    bottomSheetDetailsDialog.show(requireActivity().supportFragmentManager, BOTTOM_SHEET_POINT_DETAILS)
                 }
                 is MainPageViewModel.DestinationPathWithDescription.Error -> {
                     showToast(result.error)
@@ -278,17 +328,23 @@ class MainPageFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
     }
 
     override fun onMarkerClick(marker: Marker?): Boolean {
-        if (polyline != null) polyline?.remove()
+        removePreviousPath()
         if (marker != null && hashMapPoints[marker.snippet] != null) {
-            val destination = LatLng(marker.position.latitude, marker.position.longitude)
-            val cameraPosition = CameraPosition.Builder()
-                .target(destination)
-                .zoom(17f)
-                .build()
-            googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-            viewModel.getDirectionWithDesctination(origin!!, destination, hashMapPoints[marker.snippet])
+            destination = LatLng(marker.position.latitude, marker.position.longitude)
+            MapUtils.moveCamera(googleMap, destination)
+            viewModel.getDirectionWithDestination(origin, destination, hashMapPoints[marker.snippet])
         }
         return true
+    }
+
+    override fun onMapClick(point: LatLng?) {
+        toolbarView.visibility = View.GONE
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        removePreviousPath()
+    }
+
+    private fun removePreviousPath() {
+        polyline?.remove()
     }
 
 }

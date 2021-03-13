@@ -1,5 +1,14 @@
 package kz.example.placestovisit.utils
 
+import android.app.Activity
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.sin
@@ -23,5 +32,20 @@ object MapUtils {
         val t3 = sin(x = a1) * sin(b1)
         val tt = acos(x = t1 + t2 + t3)
         return 6366000 * tt
+    }
+
+    fun moveCamera(googleMap: GoogleMap, point: LatLng?) {
+        if (point == null) return
+        val cameraPosition = CameraPosition.Builder()
+            .target(point)
+            .zoom(17f)
+            .build()
+        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+    }
+
+    fun getIconByDrawableId(activity: Activity, drawableId: Int): BitmapDescriptor {
+        val drawable = ContextCompat.getDrawable(activity, drawableId)
+        val bitmap = drawable?.toBitmap()
+        return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
 }

@@ -1,6 +1,250 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="white">#ffffff</color>
+    <color name="whiteGrey">#f7f7f7</color>
+    <color name="white_dd">#ddffffff</color>
+    <color name="white_20">#33ffffff</color>
+    <color name="white_30">#4dffffff</color>
+    <color name="white_50">#7fffffff</color>
+    <color name="white_95">#f3ffffff</color>
+    <color name="white_70">#b3ffffff</color>
+    <color name="blue">#008ab1</color>
+    <color name="green">#4caf50</color>
+    <color name="halyk_logo_green">#00825B</color>
+    <color name="btn_green">#00805F</color>
+    <color name="grey">#6e7278</color>
+    <color name="greyPurpley">#929093</color>
+    <color name="greyInactiveCard">#99A3B3</color>
+    <color name="greyPale">#f1f2f5</color>
+    <color name="battleshipGrey">#6e7278</color>
+    <color name="greyPaleTwo">#efeff4</color>
+    <color name="greyCool">#b6b8bb</color>
+    <color name="greyHeather">#B2BAC6</color>
+    <color name="singleTotalPayment">#566681</color>
+    <color name="darkIndigo">#071222</color>
+    <color name="black_60">#60000000</color>
+    <color name="black_87">#de000000</color>
+    <color name="black_dd">#dd000000</color>
+    <color name="black_38">#61000000</color>
+    <color name="black_12">#1e000000</color>
+    <color name="gray">#5E6470</color>
+    <color name="grey_background_notifs">#CCF7F7F7</color>
+    <color name="azure">#00a9ff</color>
+    <color name="warm_grey">#9e9e9e</color>
+    <color name="green_blue">#04c181</color>
+    <color name="green_aqua">#11d392</color>
+    <color name="bluey_grey">#99a3b3</color>
+    <color name="night_blue">#03034b</color>
+    <color name="redPink">#ff005d</color>
+    <color name="bubble_gum_pink">#ff61a5</color>
+    <color name="cool_grey">#b6b8bb</color>
+    <color name="silver">#f1f2f6</color>
+    <color name="silver2">#c7c7cd</color>
+    <color name="primary">@android:color/transparent</color>
+    <color name="primaryDark">#e0e0e0</color>
+    <color name="colorAccent">#e0e0e0</color>
+    <color name="primaryLogin">#b2b2b2</color>
+    <color name="colorControlNormal">#fdb825</color>
+    <color name="purple">#785ffe</color>
+    <color name="orangeLight">#EEB052</color>
+    <color name="orangeDark">#E33A3A</color>
+    <color name="crimsonLight">#F487BB</color>
+    <color name="crimsonDark">#B73A6E</color>
+    <color name="yellow">#ffd300</color>
+    <color name="slate">#3f495e</color>
+    <color name="dark_blue_grey">#c71e2c42</color>
+    <color name="dark_info_grey">#5e5e5e</color>
+    <color name="grey_text_dark">#566681</color>
+
+    <color name="navigationBarColor">@android:color/transparent</color>
+
+    <color name="bg_main_toolbar_theme">#008ab1</color>
+    <color name="main_toolbar_theme_text">#ffffff</color>
+
+    <color name="login_toolbar_theme_text">#868686</color>
+
+    <color name="item_account_balance">#04c181</color>
+    <color name="item_account_balance_old">#4caf50</color>
+    <color name="item_account_balance_go_bonuses">#ec008c</color>
+    <color name="bg_item_account_selected">#008ab1</color>
+    <color name="bg_item_account_default">#ffffff</color>
+    <color name="bg_item_account_cat">#ffffff</color>
+    <color name="actions">#AE01FF</color>
+
+    <color name="bg_fragment_account_list">#ffffff</color>
+    <color name="fragment_account_list_header_text">#ffffff</color>
+
+    <color name="item_service_name_text">#333333</color>
+    <color name="item_provider_name_text">#333333</color>
+    <color name="item_account_active_text">#008ab1</color>
+    <color name="fragment_details_text">#333333</color>
+    <color name="fragment_details_black_text">#dd000000</color>
+    <color name="fragment_details_extraction_text">#999999</color>
+    <color name="fragment_details_value_text">#008ab1</color>
+    <color name="fragment_details_red_value_text">#d32f2f</color>
+    <color name="fragment_details_black_value_text">#000000</color>
+    <color name="fragment_details_green_value_text">#4caf50</color>
+
+    <!--    <gradient xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--        android:startColor="#FFFFFF"-->
+    <!--        android:centerColor="#0000FF"-->
+    <!--        android:endColor="#00FFFF"-->
+    <!--        android:angle="145"-->
+    <!--        android:startX="30"-->
+    <!--        android:endX="70"-->
+    <!--        android:startY="30"-->
+    <!--        android:endY="70"-->
+    <!--        android:type="linear"/>-->
+
+    <color name="bg_shape_details_divider">#e5e5e5</color>
+    <color name="header_go_bonuses_extraction_title">#ffffff</color>
+
+    <color name="not_payed">#e6e6e6</color>
+    <color name="item_contract_name">#333333</color>
+    <color name="fragment_service_label">#999999</color>
+
+    <color name="item_news_title">#333333</color>
+    <color name="item_news_date">#999999</color>
+
+    <color name="fragment_contacts_text_cc">#999999</color>
+    <color name="fragment_contacts_text_dd">#333333</color>
+
+    <color name="point_distance">#c3592f</color>
+    <color name="point_name">#00607b</color>
+    <color name="point_address">#999999</color>
+    <color name="point_time">#333333</color>
+
+    <color name="darker_white">#faf9f9</color>
+
+    <color name="stpi_default_circle_color">#e0e6ef</color>
+    <color name="stpi_default_primary_color">#00a9ff</color>
+    <color name="stpi_default_line_color">#b3bdc2</color>
+    <color name="stpi_default_text_color">#b13939</color>
+
+    <color name="colorSecondaryDarkText">#8b000000</color>
+    <color name="colorDarkDivider">#1e000000</color>
+
+    <color name="gradient_1_start">#09d1fc</color>
+    <color name="gradient_1_end">#3b6bea</color>
+    <color name="gradient_2_start">#ae87f4</color>
+    <color name="gradient_2_end">#673ab7</color>
+    <color name="gradient_3_start">#ff9675</color>
+    <color name="gradient_3_end">#ff5722</color>
+    <color name="gradient_4_start">#74de79</color>
+    <color name="gradient_4_end">#4caf50</color>
+    <color name="gradient_5_start">#f2e550</color>
+    <color name="gradient_5_end">#f29250</color>
+    <color name="gradient_6_start">#ff9393</color>
+    <color name="gradient_6_end">#e70404</color>
+    <color name="gradient_7_start">#46f4b4</color>
+    <color name="gradient_7_end">#0685cb</color>
+    <color name="gradient_8_start">#c3d0da</color>
+    <color name="gradient_8_end">#576b7b</color>
+    <color name="gradient_9_start">#6a4aff</color>
+    <color name="gradient_9_end">#00d0ff</color>
+    <color name="gradient_10_start">#0e68bd</color>
+    <color name="gradient_10_end">#5e96f6</color>
+    <color name="gradient_11_start">#0075e4</color>
+    <color name="gradient_11_end">#28d5aa</color>
+    <color name="gradient_12_start">#fda326</color>
+    <color name="gradient_12_end">#fff400</color>
+    <color name="gradient_13_start">#878a95</color>
+    <color name="gradient_13_end">#dae0ef</color>
+
+    <color name="gradient_14_start">#0085ff</color>
+    <color name="gradient_14_end">#04def5</color>
+    <color name="gradient_15_start">#17172f</color>
+    <color name="gradient_15_end">#565d70</color>
+    <color name="gradient_16_start">#00f9da</color>
+    <color name="gradient_16_end">#00c472</color>
+    <color name="gradient_17_start">#00f9da</color>
+    <color name="gradient_17_end">#00c472</color>
+    <color name="gradient_18_start">#97e213</color>
+    <color name="gradient_18_end">#2a9000</color>
+    <color name="gradient_19_start">#ed8ffd</color>
+    <color name="gradient_19_end">#9c27b0</color>
+    <color name="gradient_20_start">#ff6c00</color>
+    <color name="gradient_20_end">#ffdd00</color>
+    <color name="gradient_21_start">#48a9e8</color>
+    <color name="gradient_21_end">#8b23cc</color>
+    <color name="gradient_22_start">#a700ab</color>
+    <color name="gradient_22_end">#ff16c9</color>
+    <color name="gradient_23_start">#ff9797</color>
+    <color name="gradient_23_end">#de0459</color>
+    <color name="gradient_24_start">#777c91</color>
+    <color name="gradient_24_end">#cdd2e0</color>
+    <color name="gradient_25_start">#bfef88</color>
+    <color name="gradient_25_end">#8bc34a</color>
+    <color name="gradient_26_start">#7687e9</color>
+    <color name="gradient_26_end">#3f51b5</color>
+    <color name="gradient_27_start">#ff79a7</color>
+    <color name="gradient_27_end">#e91e63</color>
+    <color name="gradient_28_start">#a6da00</color>
+    <color name="gradient_28_end">#13b900</color>
+    <color name="gradient_consumer_loan_start">#47E16D</color>
+    <color name="gradient_consumer_loan_end">#298540</color>
+    <color name="gradient_auto_loan_start">#5A7DBA</color>
+    <color name="gradient_auto_loan_end">#2D446B</color>
+    <color name="gradient_mortgage_start">#7620EB</color>
+    <color name="gradient_mortgage_end">#4513AD</color>
+    <color name="geraldine">#E26C6C</color>
+
+
+
+    <color name="black_40">#66030303</color>
+    <color name="azure_40">#2600A9FF</color>
+    <color name="night_blue_50">#8003034B</color>
+
+    <color name="dark_gray">#53545b</color>
+    <color name="red">#de0057</color>
+    <color name="red_delete">#f42b74</color>
+
+    <color name="hce_payment_fab_success">#4abd24</color>
+    <color name="hce_payment_fab_failure">#ff2d55</color>
+    <color name="kashmirBlue">#566681</color>
+    <color name="transparent">#40000000</color>
+    <color name="transparent_00">#00000000</color>
+
+    <color name="primaryColor">#2AA65C</color>
+    <color name="scarletColor">#FF0000</color>
+    <color name="primaryColor_10">#1A2AA65C</color>
+    <color name="green_10">#2AA65C</color>
+    <color name="green_15">#1C984E</color>
+    <color name="green_main">#1C984E</color>
+    <color name="value_text">#566681</color>
+    <color name="green_light">#EAF6EF</color>
+    <color name="background">#f9f9f9</color>
+    <color name="grey_10">#C8C7CC</color>
+    <color name="black">#000000</color>
+    <color name="grey_5">#E6E6E6</color>
+    <color name="greyDark">#566681</color>
+    <color name="darkLayer">#14000000</color>
+
+    <color name="green_shadow_50">#7f28823E</color>
+    <color name="green_shadow">#28823E</color>
+    <color name="other_shadow">#4D000000</color>
+
+    <color name="primary_green">#2AA65C</color>
+    <color name="alert">#FFCC01</color>
+    <color name="error">#FF005D</color>
+
+
+    <color name="rate_picker_inactive">#99A3B3</color>
+    <color name="rate_picker_active">#071222</color>
+    <color name="rate_picker_border_line">#2AA65C</color>
+    <color name="rate_picker_border_line_inactive">#E0E6EF</color>
+    <color name="rate_picker_solid_inactive">#F7F7F7</color>
+    <color name="underlineGray">#E5E5E7</color>
+    <color name="active">#2AA65C</color>
+    <color name="shimmerCardColor">#d1d1d1</color>
+    <color name="colorGrayBg">#f1f3f5</color>
+    <color name="toolbarColor">#F7F7F7</color>
+    <color name="colorBgLightGray">#CCF7F7F7</color>
+    <color name="background_light_gray">#F2F2F2</color>
+
+    <color name="colorRed">#FF0000</color>
+    <color name="statusGreenColor">#58B368</color>
+    <color name="colorBlueGray">#57667F</color>
+    <color name="grey_main">#035c7191</color>
+    <color name="greyUnselectedDot">#B0BAC9</color>
 </resources>

@@ -2,6 +2,7 @@ package kz.example.placestovisit.api
 
 import com.google.gson.JsonObject
 import io.reactivex.Single
+import kz.example.placestovisit.model.GeoLocationDetailsModel
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -17,7 +18,7 @@ interface PlacesToVisitApi {
     @GET("https://en.wikipedia.org/w/api.php?action=query&prop=info|description|images&format=json")
     fun getPointsOfInteresetsDetails(
         @Query("pageids") pageIds: Int
-    ): Single<Response<JsonObject>>
+    ): Single<Response<GeoLocationDetailsModel>>
 
     @GET
     fun getDirections(
